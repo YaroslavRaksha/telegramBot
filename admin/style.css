@@ -1,0 +1,154 @@
+body {
+    background: #313131;
+    padding: 20px;
+}
+
+.status-btn.disabled {
+    display: none;
+}
+
+.users-header {
+    display: flex;
+    border-bottom: 1px solid #c2c2c2;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.status .status-btn {
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.status .green {
+    background: #b3dcb6;
+}
+
+.status .red {
+    background: #ea7f7f;
+}
+
+.header-id {
+    padding-right: 15px;
+}
+
+.header-wallet, .header-balance, .header-status {
+    padding: 0 15px;
+}
+
+.header-wallet {
+    min-width: 400px;
+}
+
+.header-id {
+    min-width: 130px;
+}
+
+.header-balance {
+    min-width: 200px;
+}
+
+
+.users {
+    background: #fff;
+    margin-top: 40px;
+    padding: 15px 45px 15px 30px;
+    font-family: monospace;
+    font-size: 16px;
+}
+
+.user-row {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    padding: 15px 0 30px 0;
+    border-bottom: 1px solid #c2c2c2;
+}
+
+.user-row .id {
+    min-width: 130px;
+    max-width: 130px;
+    line-break: anywhere;
+    border-right: 1px solid #c2c2c2;
+    padding: 0 15px 0 0;
+}
+
+.user-row .wallet {
+    min-width: 400px;
+    max-width: 400px;
+    padding: 0 15px;
+    border-right: 1px solid #c2c2c2;
+    line-break: anywhere;
+}
+
+.user-row .balance {
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    max-width: 200px;
+    line-break: anywhere;
+    padding: 0 15px;
+    border-right: 1px solid #c2c2c2;
+}
+
+.user-row .balance .edit {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.user-row .balance input {
+    max-width: 100px;
+}
+
+.user-row .status {
+    padding: 0 15px;
+}
+
+.user-row:last-child {
+    border: none;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.courses {
+    padding: 15px 45px 15px 30px;
+    max-width: 250px;
+    background: #fafafa;
+}
+
+.courses-item {
+    display: flex;
+    font-size: 16px;
+    font-family: monospace;
+    align-items: center;
+}
+
+.courses-item svg {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.courses-item .submit {
+    background: #b3dcb6;
+    padding: 2px;
+}
+
+.courses-item div {
+    min-width: 90px;
+    padding: 12px 0;
+}
+
+.courses-item input {
+    width: 80px;
+    margin-right: 32px;
+}
+
+.courses-item button {
+    background: none;
+    border: none;
+    outline: none;
+    margin-left: auto;
+}
