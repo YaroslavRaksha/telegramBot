@@ -106,7 +106,7 @@ module.exports = {
             if(!plus) {
                 const updatedBalance = (parseFloat(balance) - parseFloat(sum));
                 if(!isNaN(updatedBalance) && updatedBalance >= 0) {
-                    const res = await QUERY(UPDATE_BALANCE, [updatedBalance, clientId]);
+                    const res = await QUERY(UPDATE_BALANCE, [updatedBalance?.toFixed(2), clientId]);
                     if(!res.affectedRows) return false;
                     return { success: true };
                 }
@@ -114,7 +114,7 @@ module.exports = {
             if(plus) {
                 const updatedBalance = (parseFloat(balance) + parseFloat(sum));
                 if(!isNaN(updatedBalance) && updatedBalance >= 0) {
-                    const res = await QUERY(UPDATE_BALANCE, [updatedBalance, clientId]);
+                    const res = await QUERY(UPDATE_BALANCE, [updatedBalance?.toFixed(2), clientId]);
                     if(!res.affectedRows) return false;
                     return { success: true, updatedBalance: updatedBalance };
                 }

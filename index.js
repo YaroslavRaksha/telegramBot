@@ -8,7 +8,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 const path = require("path");
 
 app.use(bodyParser.urlencoded({
@@ -97,11 +97,20 @@ const USERS_BOT = new TelegramBot(USERS_TOKEN, {polling: true});
 const MESSAGES_TOKEN = process.env.MESSAGES_TOKEN;
 const MESSAGES_BOT = new TelegramBot(MESSAGES_TOKEN, {polling: true});
 
+
+const TRADE = 'Обміняти 🔄';
+const PAY = 'Оплата 💳';
+const COURSE = 'Курс ⚖';
+const TOP_UP = 'Поповнити ⤵';
+const BALANCE = 'Баланс 💰';
+const SUPPORT = 'Підтримка 🆘';
+
 const CLIENT_KEYBOARD = JSON.stringify({
     resize_keyboard: true,
     keyboard: [
-        [{text: 'Обміняти'}, {text: 'Оплата'}, {text: 'Курс'}],
-        [{text: 'Поповнити'}, {text: 'Баланс'}, {text: 'Підтримка'}]
+        [{text: TRADE}, {text: TOP_UP}],
+        [{text: PAY}, {text: COURSE}],
+        [{text: BALANCE}, {text: SUPPORT}]
     ]
 });
 
@@ -194,9 +203,21 @@ const cardAndBalanceChecker = async (array, client_id) => {
             const isVisa = visaPattern.test( cardNumber ) === true;
             const isMast = mastPattern.test( cardNumber ) === true;
 
+            if(isNaN(cardNumber) && isNaN(sum)) {
+                checker = false;
+                return;
+            }
+
+            if((isNaN(cardNumber) && !isNaN(sum)) || (!isNaN(cardNumber) && isNaN(sum))) {
+                await MAIN_BOT.sendMessage(client_id, 'Невірний формат вводу. Переконайтеся, що номер карти коректний та копійки написані через крапку.');
+                checker = false;
+                return
+            }
+
             if((isNaN(cardNumber) || isNaN(sum)) || (!isVisa && !isMast)) {
                 await MAIN_BOT.sendMessage(client_id, 'Невірний формат вводу.');
                 checker = false;
+                return;
             }
 
             if((isVisa || isMast)) {
@@ -273,30 +294,30 @@ MAIN_BOT.on('message', async (msg) => {
     const card = await checkForCardFormat(CLIENT_ID, msg.text);
 
     if(!card) {
-        switch(text?.toLowerCase()) {
+        switch(text) {
             case '/start':
                 await MAIN_BOT.sendMessage(CLIENT_ID, supportText, {reply_markup: CLIENT_KEYBOARD});
                 break;
-            case 'поповнити':
+            case TOP_UP:
             case '/pay':
                 await MAIN_BOT.sendMessage(CLIENT_ID, requisitesText(CLIENT_ADDRESS), {parse_mode: 'HTML'});
                 break;
-            case 'баланс':
+            case BALANCE:
             case '/balance':
                 const balanceUSDT = await getUSDTBalance(CLIENT_ADDRESS);
                 const balanceUAH = await getUAHBalance(CLIENT_ID, true);
                 await MAIN_BOT.sendMessage(CLIENT_ID,`Залишок гривня: <b>${balanceUAH}</b>\nЗашишок USDT: <b>${balanceUSDT}</b>`, {parse_mode: 'HTML'});
                 break;
-            case 'обміняти':
+            case TRADE:
                 await getConversion(CLIENT_ID, CLIENT_ADDRESS)
                 break;
-            case 'оплата':
+            case PAY:
                 await getPayment(CLIENT_ID)
                 break;
-            case 'підтримка':
+            case SUPPORT:
                 await MAIN_BOT.sendMessage(CLIENT_ID, supportText)
                 break;
-            case 'курс':
+            case COURSE:
                 const courses = await getCourses();
                 const coursesMessage = coursesText(courses);
                 await MAIN_BOT.sendMessage(CLIENT_ID, `Актуальні курси:\n\n${coursesMessage}`);
@@ -317,7 +338,11 @@ MAIN_BOT.on('callback_query', async (query) => {
         parse_mode: 'HTML'
     }
 
-    const cardNum = query.message.text.split('бажаєте відправити?\n')[1];
+    const cardNum = query.message.text.split('бажаєте відправити?\n')[1]?.replace('грн', '');
+    const adminCardNum = cardNum?.split('\n\nЗагальна')[0].split('\n').map((text) => {
+        const [cardNumber, sum] = text?.split(' ');
+        return `${cardNumber}/<b>${sum}</b>`
+    })?.join('\n');
 
     switch(command) {
 
@@ -334,9 +359,10 @@ MAIN_BOT.on('callback_query', async (query) => {
                 break;
             }
 
+
             if(updatedBalance && updatedBalance.success) {
                 await MESSAGES_BOT.sendMessage(ADMIN_ID, `<i>/${CLIENT_ID}/</i>\nОплата на карту\n\n<pre>${cardNum}</pre>`, {parse_mode: 'HTML', reply_markup: ADMIN_SUBMIT(sum)});
-                await MESSAGES_BOT.sendMessage(ADMIN_ID, `<pre>${cardNum?.split('\nЗагальна')[0]}</pre>`, {parse_mode: 'HTML'})
+                await MESSAGES_BOT.sendMessage(ADMIN_ID, `${adminCardNum}`, {parse_mode: 'HTML'})
                 await MAIN_BOT.editMessageText(`Очікуйте поповнення на <b>${sum}грн</b>.`, editMsgObj);
             }
             break;
